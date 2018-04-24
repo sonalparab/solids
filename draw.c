@@ -19,8 +19,164 @@
 
   Color should be set differently for each polygon.
   ====================*/
+
 void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
 
+  //find the top coor
+  int tindex = 0;
+  double yt = points->m[1][i];
+  if(yt < points->m[1][i+1]){
+    tindex = 1;
+    yt = points->m[1][i+1];
+  }
+  if(yt < points->m[1][i+2]){
+    tindex = 2;
+    yt = points->m[1][i+2];
+  }
+
+  //find the bottom coor
+  int bindex;
+  double yb;
+  if(tindex != 0){
+    bindex = 0;
+    yb = points->m[1][i];
+  }
+  else{
+    bindex = 1;
+    yb = points->m[1][i+1];
+  }
+  
+  if(!bindex && yb > points->m[1][i+1]){
+    bindex = 1;
+    yb = points->m[1][i+1];
+  }
+  if(yb > points->m[1][i+2]){
+    bindex = 2;
+    yb = points->m[1][i+2];
+  }
+
+  int mindex = 0;
+  if(bindex == 0 || tindex == 0){
+    if(bindex == 1 || tindex == 1)
+      mindex = 2;
+    else
+      mindex = 1;
+  }
+
+  double xt = points->m[0][i+tindex];
+  yt = points->m[1][i+tindex];
+  double zt = points->m[2][i+tindex];
+  
+  double xb = points->m[0][i+bindex];
+  yb = points->m[1][i+bindex];
+  double zbb = points->m[2][i+bindex];
+
+  double xm = points->m[0][i+mindex];
+  double ym = points->m[1][i+mindex];
+  double zm = points->m[2][i+mindex];
+
+  /*
+    Y: Yb -> Yt
+    Y += 1
+    X0 on the line BT
+    X0 += delta thing
+    delta thing = (Xt - Xb) / (Yt - Yb)
+    delta x / # of scanlines b/c y increments by 1
+    
+    X1: on the line BM until Y = Ym, then
+    on the line MT
+
+    X1 += delta 1
+    delta 1 = (Xm - Xb) / (Ym - Yb) OR
+    (Xt - Xm) / (Yt - Ym)
+  */
+
+  printf("indexes: %d %d %d\n",tindex,mindex,bindex);
+  printf("x-coors: %f %f %f\n",xb,xm,xt);
+  printf("y-coors: %f %f %f\n",yb,ym,yt);
+  printf("z-coors: %f %f %f\n",zbb,zm,zt);
+  //printf("pre=color\n");
+  
+  color c;
+  //printf("declare color");
+  c.red = rand() % 255;
+  c.green = (rand() + 10) % 255;
+  c.blue = (rand() + 20) % 255;
+  
+  double x0 = xb;
+  double x1 = xb;
+  int y = (int)yb;
+  //printf("y: %d",y);
+  double z0 = zbb;
+  double z1 = zbb;
+
+  int mt = 0;
+  
+  if(abs(yt - ym) < 0.00001 && abs(ym - yb) < 0.00001){
+    printf("yes"); //this print is super delayed for some reason
+    //draw_line(x0,y,z0,x1,y,z1,s,zb,c);
+    //return;
+  }
+
+  double delta0,delta2;
+  if(yt == yb){
+    printf("That's not a triangle");
+    delta0 = 0;
+    delta2 = 0;
+  }
+  else{
+    delta0 = (xt - xb) / (yt - yb);
+    delta2 = (zt - zbb) / (yt - yb);
+  }
+  
+  double delta1,delta3;
+  if(((int)ym - (int)yb) != 0){
+    delta1 = (xm - xb) / (ym - yb);
+    delta3 = (zm - zbb) / (ym - yb);
+  }
+  else{
+    delta1 = 0;
+    delta3 = 0;
+  }
+  
+  draw_line(x0,y,z0,x1,y,z1,s,zb,c);
+
+  //everything goes a little more right than it should
+  //now some things look like they have extra pixels
+  
+  while( y < (int)yt){
+    
+    x0 += delta0;
+    z0 += delta2;
+    x1 += delta1;
+    z1 += delta3;
+    
+    if(y == (int)ym){
+      x1 = xm;
+      z1 = zm;
+      draw_line(x0,y,z0,x1,y,z1,s,zb,c);
+      y++;
+   
+      x0 += delta0;
+      z0 += delta2;
+      
+      if(((int)yt - (int)ym) != 0){
+	delta1 = (xt - xm) / (yt - ym);
+	delta3 = (zt - zm) / (yt - ym);
+      }
+      else{
+	delta1 = 0;
+	delta3 = 0;
+      }
+      mt = 1;
+    }
+    
+    draw_line(x0,y,z0,x1,y,z1,s,zb,c);
+    
+    y++;
+  }
+  printf("y: %d",y);
+	
 }
 
 /*======== void add_polygon() ==========
@@ -73,7 +229,10 @@ void draw_polygons(struct matrix *polygons, screen s, zbuffer zb, color c ) {
 
     if ( normal[2] > 0 ) {
 
-      draw_line( polygons->m[0][point],
+      scanline_convert(polygons,point,s,zb);
+      printf("point: %d\n",point);
+      
+      /*draw_line( polygons->m[0][point],
                  polygons->m[1][point],
                  polygons->m[2][point],
                  polygons->m[0][point+1],
@@ -93,7 +252,8 @@ void draw_polygons(struct matrix *polygons, screen s, zbuffer zb, color c ) {
                  polygons->m[0][point+2],
                  polygons->m[1][point+2],
                  polygons->m[2][point+2],
-                 s, zb, c);
+                 s, zb, c);*/
+
     }
   }
 }
@@ -505,9 +665,6 @@ void draw_lines( struct matrix * points, screen s, zbuffer zb, color c) {
                s, zb, c);
 }// end draw_lines
 
-
-
-
 void draw_line(int x0, int y0, double z0,
                int x1, int y1, double z1,
                screen s, zbuffer zb, color c) {
@@ -597,3 +754,4 @@ void draw_line(int x0, int y0, double z0,
   } //end drawing loop
   plot( s, zb, c, x1, y1, 0 );
 } //end draw_line
+
