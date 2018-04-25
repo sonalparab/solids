@@ -112,6 +112,91 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
 
   int mt = 0;
   
+  //if(abs(yt - ym) < 0.00001 && abs(ym - yb) < 0.00001){
+    //printf("yes"); //this print is super delayed for some reason
+    //draw_line(x0,y,z0,x1,y,z1,s,zb,c);
+    //return;
+  //}
+
+  double delta0,delta2;
+  if((yt - yb < 0.000001)){
+    printf("That's not a triangle");
+    delta0 = 0;
+    delta2 = 0;
+  }
+  else{
+    delta0 = (xt - xb) / (yt - yb);
+    delta2 = (zt - zbb) / (yt - yb);
+  }
+  
+  double delta1,delta3;
+  if(!(ym - yb < 0.000001)){
+    delta1 = (xm - xb) / (ym - yb);
+    delta3 = (zm - zbb) / (ym - yb);
+  }
+  else{
+    delta1 = 0;
+    delta3 = 0;
+  }
+  
+  draw_line(x0,y,z0,x1,y,z1,s,zb,c);
+
+  //everything goes a little more right than it should
+  //now some things look like they have extra pixels
+  
+  while( y < (int)ym){
+
+    //draw_line(x0,y,z0,x1,y,z1,s,zb,c);
+    
+    x0 += delta0;
+    z0 += delta2;
+    x1 += delta1;
+    z1 += delta3;
+    
+    draw_line(x0,y,z0,x1,y,z1,s,zb,c);
+    
+    y++;
+  }
+  
+  printf("y: %d",y);
+
+  x1 = xm;
+  z1 = zm;
+  draw_line(x0,y,z0,x1,y,z1,s,zb,c);
+  y++;
+
+  if(!(yt - ym < 0.000001)){
+    delta1 = (xt - xm) / (yt - ym);
+    delta3 = (zt - zm) / (yt - ym);
+  }
+  else{
+    delta1 = 0;
+    delta3 = 0;
+  }
+
+  while( y < (int)yt){
+    
+    x0 += delta0;
+    z0 += delta2;
+    x1 += delta1;
+    z1 += delta3;
+    
+    draw_line(x0,y,z0,x1,y,z1,s,zb,c);
+    
+    y++;
+  }
+  
+  
+
+  /* double x0 = xb;
+  double x1 = xb;
+  int y = (int)yb;
+  //printf("y: %d",y);
+  double z0 = zbb;
+  double z1 = zbb;
+
+  int mt = 0;
+  
   if(abs(yt - ym) < 0.00001 && abs(ym - yb) < 0.00001){
     printf("yes"); //this print is super delayed for some reason
     //draw_line(x0,y,z0,x1,y,z1,s,zb,c);
@@ -175,8 +260,8 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
     
     y++;
   }
-  printf("y: %d",y);
-	
+  printf("y: %d",y);*/
+  	
 }
 
 /*======== void add_polygon() ==========
@@ -673,7 +758,7 @@ void draw_line(int x0, int y0, double z0,
   int x, y, d, A, B;
   int dy_east, dy_northeast, dx_east, dx_northeast, d_east, d_northeast;
   int loop_start, loop_end;
-
+  
   //swap points if going right -> left
   int xt, yt;
   if (x0 > x1) {
