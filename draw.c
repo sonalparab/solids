@@ -91,14 +91,12 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
     (Xt - Xm) / (Yt - Ym)
   */
 
-  printf("indexes: %d %d %d\n",tindex,mindex,bindex);
-  printf("x-coors: %f %f %f\n",xb,xm,xt);
-  printf("y-coors: %f %f %f\n",yb,ym,yt);
-  printf("z-coors: %f %f %f\n",zbb,zm,zt);
-  //printf("pre=color\n");
+  //printf("indexes: %d %d %d\n",tindex,mindex,bindex);
+  //printf("x-coors: %f %f %f\n",xb,xm,xt);
+  //printf("y-coors: %f %f %f\n",yb,ym,yt);
+  //printf("z-coors: %f %f %f\n",zbb,zm,zt);
   
   color c;
-  //printf("declare color");
   c.red = rand() % 255;
   c.green = (rand() + 10) % 255;
   c.blue = (rand() + 20) % 255;
@@ -106,21 +104,11 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
   double x0 = xb;
   double x1 = xb;
   int y = (int)yb;
-  //printf("y: %d",y);
   double z0 = zbb;
   double z1 = zbb;
 
-  int mt = 0;
-  
-  //if(abs(yt - ym) < 0.00001 && abs(ym - yb) < 0.00001){
-    //printf("yes"); //this print is super delayed for some reason
-    //draw_line(x0,y,z0,x1,y,z1,s,zb,c);
-    //return;
-  //}
-
   double delta0,delta2;
   if((yt - yb < 0.000001)){
-    printf("That's not a triangle");
     delta0 = 0;
     delta2 = 0;
   }
@@ -140,13 +128,8 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
   }
   
   draw_line(x0,y,z0,x1,y,z1,s,zb,c);
-
-  //everything goes a little more right than it should
-  //now some things look like they have extra pixels
   
   while( y < (int)ym){
-
-    //draw_line(x0,y,z0,x1,y,z1,s,zb,c);
     
     x0 += delta0;
     z0 += delta2;
@@ -158,7 +141,7 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
     y++;
   }
   
-  printf("y: %d",y);
+  //printf("y: %d",y);
 
   x1 = xm;
   z1 = zm;
@@ -185,83 +168,7 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
     
     y++;
   }
-  
-  
-
-  /* double x0 = xb;
-  double x1 = xb;
-  int y = (int)yb;
-  //printf("y: %d",y);
-  double z0 = zbb;
-  double z1 = zbb;
-
-  int mt = 0;
-  
-  if(abs(yt - ym) < 0.00001 && abs(ym - yb) < 0.00001){
-    printf("yes"); //this print is super delayed for some reason
-    //draw_line(x0,y,z0,x1,y,z1,s,zb,c);
-    //return;
-  }
-
-  double delta0,delta2;
-  if(yt == yb){
-    printf("That's not a triangle");
-    delta0 = 0;
-    delta2 = 0;
-  }
-  else{
-    delta0 = (xt - xb) / (yt - yb);
-    delta2 = (zt - zbb) / (yt - yb);
-  }
-  
-  double delta1,delta3;
-  if(((int)ym - (int)yb) != 0){
-    delta1 = (xm - xb) / (ym - yb);
-    delta3 = (zm - zbb) / (ym - yb);
-  }
-  else{
-    delta1 = 0;
-    delta3 = 0;
-  }
-  
-  draw_line(x0,y,z0,x1,y,z1,s,zb,c);
-
-  //everything goes a little more right than it should
-  //now some things look like they have extra pixels
-  
-  while( y < (int)yt){
-    
-    x0 += delta0;
-    z0 += delta2;
-    x1 += delta1;
-    z1 += delta3;
-    
-    if(y == (int)ym){
-      x1 = xm;
-      z1 = zm;
-      draw_line(x0,y,z0,x1,y,z1,s,zb,c);
-      y++;
-   
-      x0 += delta0;
-      z0 += delta2;
-      
-      if(((int)yt - (int)ym) != 0){
-	delta1 = (xt - xm) / (yt - ym);
-	delta3 = (zt - zm) / (yt - ym);
-      }
-      else{
-	delta1 = 0;
-	delta3 = 0;
-      }
-      mt = 1;
-    }
-    
-    draw_line(x0,y,z0,x1,y,z1,s,zb,c);
-    
-    y++;
-  }
-  printf("y: %d",y);*/
-  	
+    	
 }
 
 /*======== void add_polygon() ==========
@@ -315,7 +222,6 @@ void draw_polygons(struct matrix *polygons, screen s, zbuffer zb, color c ) {
     if ( normal[2] > 0 ) {
 
       scanline_convert(polygons,point,s,zb);
-      printf("point: %d\n",point);
       
       /*draw_line( polygons->m[0][point],
                  polygons->m[1][point],
