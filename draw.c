@@ -753,6 +753,120 @@ void draw_lines( struct matrix * points, screen s, zbuffer zb, color c) {
 void draw_line(int x0, int y0, double z0,
                int x1, int y1, double z1,
                screen s, zbuffer zb, color c) {
+  int x, y, d, A, B;
+  int dy_east, dy_northeast, dx_east, dx_northeast, d_east, d_northeast;
+  double z,deltaZ;
+  int loop_start, loop_end;
+
+  //swap points if going right -> left
+  //shouldn't the z be switched too???
+  int xt, yt;
+  double zt;
+  if (x0 > x1) {
+    xt = x0;
+    yt = y0;
+    zt = z0;
+    x0 = x1;
+    y0 = y1;
+    z0 = z1;
+    x1 = xt;
+    y1 = yt;
+    z1 = zt;
+  }
+
+  x = x0;
+  y = y0;
+  z = z0;
+  A = 2 * (y1 - y0);
+  B = -2 * (x1 - x0);
+  int wide = 0;
+  int tall = 0;
+  //octants 1 and 8
+  if ( abs(x1 - x0) >= abs(y1 - y0) ) { //octant 1/8
+    wide = 1;
+    loop_start = x;
+    loop_end = x1;
+    dx_east = dx_northeast = 1;
+    dy_east = 0;
+    d_east = A;
+    if ( A > 0 ) { //octant 1
+      d = A + B/2;
+      dy_northeast = 1;
+      d_northeast = A + B;
+      if(B != 0)
+	deltaZ = (z1 - z0) / (x1 - x0);
+      else
+	deltaZ = 0;
+    }
+    else { //octant 8
+      d = A - B/2;
+      dy_northeast = -1;
+      d_northeast = A - B;
+      if(B != 0)
+	deltaZ = (z1 - z0) / (x1 - x0);
+      else
+	deltaZ = 0;
+    }
+  }//end octant 1/8
+  else { //octant 2/7
+    tall = 1;
+    dx_east = 0;
+    dx_northeast = 1;
+    if ( A > 0 ) {     //octant 2
+      d = A/2 + B;
+      dy_east = dy_northeast = 1;
+      d_northeast = A + B;
+      d_east = B;
+      loop_start = y;
+      loop_end = y1;
+      if(A != 0)
+	deltaZ = (z1 - z0) / (y1 - y0);
+      else
+	deltaZ = 0;
+    }
+    else {     //octant 7
+      d = A/2 - B;
+      dy_east = dy_northeast = -1;
+      d_northeast = A - B;
+      d_east = -1 * B;
+      loop_start = y1;
+      loop_end = y;
+      if(A != 0)
+	deltaZ = (z1 - z0) / (y1 - y0);
+      else
+	deltaZ = 0;
+    }
+  }
+
+  while ( loop_start < loop_end ) {
+
+    plot( s, zb, c, x, y, z); //change to z
+    if ( (wide && ((A > 0 && d > 0) ||
+                   (A < 0 && d < 0)))
+         ||
+         (tall && ((A > 0 && d < 0 ) ||
+                   (A < 0 && d > 0) ))) {
+      y+= dy_northeast;
+      d+= d_northeast;
+      x+= dx_northeast;
+      z+= deltaZ;
+    }
+    else {
+      x+= dx_east;
+      y+= dy_east;
+      d+= d_east;
+      z+= deltaZ;
+    }
+    loop_start++;
+  } //end drawing loop
+  plot( s, zb, c, x1, y1, z1 ); //change to z1 later
+} //end draw_line
+
+
+
+/*void draw_line(int x0, int y0, double z0,
+               int x1, int y1, double z1,
+               screen s, zbuffer zb, color c) {
 
 
   int x, y, d, A, B;
@@ -840,3 +954,4 @@ void draw_line(int x0, int y0, double z0,
   plot( s, zb, c, x1, y1, 0 );
 } //end draw_line
 
+*/
