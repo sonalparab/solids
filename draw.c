@@ -55,6 +55,7 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
     yb = points->m[1][i+2];
   }
 
+  //find the middle coor
   int mindex = 0;
   if(bindex == 0 || tindex == 0){
     if(bindex == 1 || tindex == 1)
@@ -91,7 +92,7 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
     (Xt - Xm) / (Yt - Ym)
   */
 
-  //printf("indexes: %d %d %d\n",tindex,mindex,bindex);
+  //printf("indeces: %d %d %d\n",tindex,mindex,bindex);
   //printf("x-coors: %f %f %f\n",xb,xm,xt);
   //printf("y-coors: %f %f %f\n",yb,ym,yt);
   //printf("z-coors: %f %f %f\n",zbb,zm,zt);
@@ -100,6 +101,8 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
   c.red = rand() % 255;
   c.green = (rand() + 10) % 255;
   c.blue = (rand() + 20) % 255;
+
+
   
   double x0 = xb;
   double x1 = xb;
@@ -108,7 +111,7 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
   double z1 = zbb;
 
   double delta0,delta2;
-  if((yt - yb < 0.000001)){
+  if(yt - yb < 0.000001){
     delta0 = 0;
     delta2 = 0;
   }
@@ -128,6 +131,7 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
   }
   
   draw_line(x0,y,z0,x1,y,z1,s,zb,c);
+  y++;
   
   while( y < (int)ym){
     
@@ -143,6 +147,8 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
   
   //printf("y: %d",y);
 
+  x0 += delta0;
+  z0 += delta2;
   x1 = xm;
   z1 = zm;
   draw_line(x0,y,z0,x1,y,z1,s,zb,c);
@@ -168,7 +174,8 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
     
     y++;
   }
-    	
+  
+
 }
 
 /*======== void add_polygon() ==========
