@@ -139,10 +139,11 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
     z0 += delta2;
     x1 += delta1;
     z1 += delta3;
+
+    y++;
     
     draw_line(x0,y,z0,x1,y,z1,s,zb,c);
     
-    y++;
   }
   
   //printf("y: %d",y);
@@ -151,8 +152,8 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
   z0 += delta2;
   x1 = xm;
   z1 = zm;
-  draw_line(x0,y,z0,x1,y,z1,s,zb,c);
   y++;
+  draw_line(x0,y,z0,x1,y,z1,s,zb,c);
 
   if(!(yt - ym < 0.000001)){
     delta1 = (xt - xm) / (yt - ym);
@@ -169,10 +170,11 @@ void scanline_convert( struct matrix *points, int i, screen s, zbuffer zb ) {
     z0 += delta2;
     x1 += delta1;
     z1 += delta3;
+
+    y++;
     
     draw_line(x0,y,z0,x1,y,z1,s,zb,c);
-    
-    y++;
+  
   }
   
 
