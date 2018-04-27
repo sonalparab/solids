@@ -1,0 +1,61 @@
+#HEAD
+push
+move
+250 200 0
+scale
+1.2 1.2 1.2
+rotate
+y -10
+box
+-100 100 50 200 200 100
+#EYES
+push
+move
+-40 45 0
+sphere
+0 0 100 20
+pop
+push
+move
+50 45 0
+sphere
+0 0 100 20
+pop
+#NOSE
+push
+move
+0 5 0
+torus
+0 0 100 10 20
+pop
+#MOUTH
+push
+move
+0 -30 0
+box
+-50 0 100 100 40 30
+pop
+#ANTENNA
+push
+move
+0 100 0
+line
+-1 0 0 -1 100 0
+line
+-0.5 0 0 -0.5 100 0
+line
+0 0 0 0 100 0
+line
+0.5 0 0 0.5 100 0
+line
+1 0 0 1 100 0
+push
+move
+0 100 0
+sphere
+10 0 50 15
+pop
+pop
+display
+save
+robotHead.png
